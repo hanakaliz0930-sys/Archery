@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private int minimumPointRequired = 40;
     private float startTime = -1;
     public float CurrentTime {get; private set;} = 0;
     private bool isRunning = true;

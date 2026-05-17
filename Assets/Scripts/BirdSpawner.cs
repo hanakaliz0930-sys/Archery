@@ -39,7 +39,7 @@ public class BirdSpawner : MonoBehaviour
 
         Vector3 spawnPosition = new Vector3(x, y, z);
         GameObject bird = Instantiate(birdPrefab, spawnPosition, birdPrefab.transform.rotation);
-        bird.transform.localScale = Vector3.one * 4;
+        bird.transform.localScale = Vector3.one * 10;
         Renderer birdRenderer = bird.GetComponentInChildren<Renderer>();
         birdRenderer.material = birdMaterial;
     }

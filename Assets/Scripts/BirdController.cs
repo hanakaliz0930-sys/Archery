@@ -4,9 +4,8 @@ using UnityEngine.UIElements;
 
 public class BirdController : MonoBehaviour
 {
-   public int value = 1;
+    public int value = 1;
     private int speed = 1;
-
 
     void Update()
     {

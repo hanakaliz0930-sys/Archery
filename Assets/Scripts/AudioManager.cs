@@ -16,9 +16,11 @@ public class AudioManager : MonoBehaviour
     public void PlayStaffSFX(AudioClip clip)
     {
         StaffSFXSource.PlayOneShot(clip);
+        StaffSFXSource.volume = 0.5f;
     }
     public void PlayBirdSFX(AudioClip clip)
     {
-        birdSFXSource.PlayOneShot(clip);
+        birdSFXSource.PlayOneShot(clip);        
+        birdSFXSource.volume = 5f;
     }
 }

@@ -5,6 +5,7 @@ using System;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
+using Leap;
 
 public class StaffController : MonoBehaviour
 {
@@ -12,26 +13,39 @@ public class StaffController : MonoBehaviour
     [SerializeField] private UIManager uiManager;
     public event Action<int> WritePoints;
 
+    public float pullThreshold = 0.01f;
+    private Vector3 pullStartPosition;
+    private bool wasGrabbing;
+    private bool hasShot;
     public AudioClip birdSound;
     public AudioClip arrowSound;
     public Transform shootPoint;
     public LineRenderer line;
-    [SerializeField] private float distance = 500f;
+    [SerializeField] private float distance = 300f;
     public GameObject prefab;
     [SerializeField] private int score = 0;
     public int Score => score;
+    public HandInput HandInput;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         line = GetComponent<LineRenderer>();
-        
     }
 
     // Update is called once per frame
     void Update()
     {
-            if(Input.GetMouseButtonUp(0))
+        Vector3 currentLeft = HandInput.leftHandPosition;
+        if(HandInput.isGrabbingLeft == true && wasGrabbing == false)
+        {
+            pullStartPosition = currentLeft;
+            hasShot = false;
+        }
+        float pullZ = pullStartPosition.z - currentLeft.z;
+            //if(Input.GetMouseButtonUp(0))
+            if(HandInput.isGrabbingLeft && hasShot == false && pullZ > pullThreshold)
         { 
+            hasShot = true;
             AudioManager.instance.PlayStaffSFX(arrowSound);
             Ray ray = new Ray(shootPoint.position, shootPoint.forward);
             RaycastHit hit;
@@ -39,7 +53,6 @@ public class StaffController : MonoBehaviour
             if (Physics.Raycast(ray, out hit, distance))
             {
                 endPoint = hit.point;
-                Debug.Log("Hit: " + hit.collider.name);
                 
                 var bird = hit.collider.GetComponent<BirdController>();
                 if(bird != null)
@@ -54,20 +67,33 @@ public class StaffController : MonoBehaviour
                 endPoint = shootPoint.position + shootPoint.forward * distance;
             }
             DrawLine(shootPoint.position, endPoint);
-
         }
-            else {
 
-                    float mouseX = Input.GetAxis("Mouse X") * bowController.speed;
+                    /*float mouseX = Input.GetAxis("Mouse X") * bowController.speed;
                     float mouseY = Input.GetAxis("Mouse Y") * bowController.speed;
 
                     Quaternion yaw = Quaternion.AngleAxis(mouseX, Vector3.up);
                     Quaternion pitch = Quaternion.AngleAxis(-mouseY, Vector3.right);
 
-                    transform.rotation = yaw * transform.rotation * pitch;
+                    transform.rotation = yaw * transform.rotation * pitch;*/
 
-            }
-            
+                    /*Vector3 current = HandInput.rightHandPosition;
+                    Vector3 delta = current - lastHandPosition;
+                    if(!initialized)
+                    {
+                        lastHandPosition = current;
+                        initialized = true;
+                    }
+                    yaw += delta.x * bowController.speed;
+                    pitch -= delta.y * bowController.speed;
+                    pitch = Mathf.Clamp(pitch, -90, 90);
+                    Quaternion targetRotation = Quaternion.Euler(pitch, 0, yaw) * Quaternion.Euler(0, 0, 90);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, 10f *Time.deltaTime);*/
+                    
+                    var targetRotation = HandInput.rightHandRotation * Quaternion.Euler(0, 90, 90);
+                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, bowController.speed * Time.deltaTime);
+
+                     wasGrabbing = HandInput.isGrabbingLeft;
     }
     void DrawLine(Vector3 start, Vector3 end)
     {
